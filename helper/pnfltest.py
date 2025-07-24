@@ -237,7 +237,7 @@ async def graphThread(all_keithleys, voltage):
                     additional_time[i] += last_time_reading[i]
                 last_time_reading[i] = time_reading
                 x_data[i].append(time_reading + additional_time[i]) # Time
-                y_data[i].append(float(response[0][:-4])) # Current
+                y_data[i].append(abs(float(response[0][:-4]))) # Current
 
                 # Update graph
                 lines[i].set_xdata(x_data[i])
