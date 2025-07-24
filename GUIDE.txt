@@ -1,0 +1,20 @@
+If downloading and using for the first time, do the following:
+
+1. Download PYTHON in recent version (at least past 3.6 for f-string but like more recent is better)
+
+2. Open Command Prompt (or windows Powershell)
+
+   Copy and paste the following commands:
+
+pip install python-dotenv
+pip install pandas
+pip install matplotlib
+pip install openpyxl
+pip install pyvisa
+pip install dotenv
+
+3. Make sure you have the proper National Instruments drivers for GPIB communication through USB.
+
+4. Edit KeithleyTestingPennathurLab.py with IDLE to run as IDE like Xavier's Matlab code
+
+5. F5 to Run.
