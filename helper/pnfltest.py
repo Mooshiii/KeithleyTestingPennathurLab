@@ -2,7 +2,7 @@
 #
 # PNFLtest - 7/24/2025 - Tyler Frischknecht
 # Pennathur Nanofluidics Lab Keithley Test Commands
-VERSION = "   TEST: 1.2.0"
+VERSION = "   Test: 1.2.0"
 #
 ####################################################################################################
 # Import Libraries
