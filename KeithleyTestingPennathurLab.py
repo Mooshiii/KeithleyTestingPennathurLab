@@ -46,7 +46,7 @@ GPIB_ADDRESSES = [0]
 #
 ####################################################################################################
 # Please don't touch this part unless you know what you're doing, its important!!
-print("MAKE SURE YOU HAVE YOUR .env FILE CONFIGURED PROPERLY!")
+print("(Not an error): MAKE SURE YOU HAVE YOUR .env FILE CONFIGURED PROPERLY!")
 from helper.pnfltest import runTest
 if (len(VOLTAGE) != len(TEST_TIME)):
     print("Voltage list not same length as testTime list. Please ensure they both have the same number of items.")
