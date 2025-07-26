@@ -103,7 +103,7 @@ def setLimits(allKeithleys, sourceVoltage):
         keithley.write("SYST:ZCH 0")                # Turns zero check off
         keithley.write("SYST:ZCOR 1")               # Turns zero correction on
         # Set trigger delay between automated triggers:
-        keithley.write("TRIG:DEL 0.45") # Adjusted ~0.5s between buffer readings'
+        keithley.write("TRIG:DEL 0.44") # Adjusted ~0.5s between buffer readings'
 #
 ####################################################################################################
 #
@@ -149,7 +149,8 @@ async def keithleyTestThread(keithley, voltage, testTime, keithley_number, keith
                     await asyncio.sleep(1)
                     #    
                 else: # If buffer full
-                    SELF_DATA.append(safe_query(keithley, "TRAC:DATA?", keithley_lock).strip() + ",") # Reads from the buffer
+                    buffer_data = (await safe_query(keithley, "TRAC:DATA?", keithley_lock)).strip() + ","
+                    SELF_DATA.append(buffer_data) # Reads from the buffer
                     keithley.write("TRAC:CLE")  # Clears Buffer
                     keithley.write("*CLS")      # Clears Status Byte
                     #
@@ -299,7 +300,7 @@ def clean_data(dataset):
         if all_readings:
             last_time_str = all_readings[-1].split(", ")[1]
             # When buffer cycle completely formatted, stores last buffer time value to offset next cycle
-            time_offset = float(last_time_str)
+            time_offset = float(last_time_str) + 0.5
 
     return all_readings
 #
