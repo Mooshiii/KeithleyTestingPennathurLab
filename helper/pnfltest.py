@@ -2,13 +2,13 @@
 #
 # PNFLtest - 7/24/2025 - Tyler Frischknecht
 # Pennathur Nanofluidics Lab Keithley Test Commands
-VERSION = "   Test: 1.2.0"
+VERSION = "   TEST: 1.2.1"
 #
 ####################################################################################################
 # Import Libraries
 import asyncio # For running multiple threads at once.
 from helper.pnflmail import sendEmail
-from helper.pnflfile import makeAllFiles 
+from helper.pnflfile import makeAllFiles
 import matplotlib.ticker as ticker
 import matplotlib.pyplot as plot
 import warnings
@@ -21,7 +21,7 @@ import os
 ####################################################################################################
 # Global Variables
 imagePath = None
-timestamp = datetime.datetime.now().strftime("%Y_%m_%d__%H_%M_%S") 
+timestamp = datetime.datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
 if __name__ == "__main__":
     imagePath = os.path.join('...', 'data', f"data{timestamp}.png")
 else:
@@ -33,10 +33,11 @@ def runTest(allGPIB, voltage, testTime, emails, name, info, version):
     version += VERSION
     testSuccess = False
     try:
-        allKeithleys = connectToKeithley(allGPIB)
+        all_keithleys = connectToKeithley(allGPIB)
+        keithley_locks = [asyncio.Lock() for _ in all_keithleys]
         print("Setting limits.")
-        setLimits(allKeithleys, voltage)
-        data = asyncio.run(sourceAndRead(allKeithleys, voltage, testTime))
+        setLimits(all_keithleys, voltage)
+        data = asyncio.run(sourceAndRead(all_keithleys, voltage, testTime, keithley_locks))
         testSuccess = True
     except pyvisa.VisaIOError as e:
         print(f"VisaIOError: {e}")
@@ -47,7 +48,7 @@ def runTest(allGPIB, voltage, testTime, emails, name, info, version):
         print(f"Sorry about that, please run the test again!")
         exit(1)
     finally:
-        for keithley in allKeithleys:
+        for keithley in all_keithleys:
             try:
                 keithley.close()
                 print("Connection with Keithley terminated.")
@@ -55,7 +56,7 @@ def runTest(allGPIB, voltage, testTime, emails, name, info, version):
                 print(f"Failed to close connection with Keithley - {e}")
     if testSuccess == True:
         # put data into file here!
-        version += makeAllFiles(data, timestamp, len(allKeithleys))
+        version += makeAllFiles(data, timestamp, len(all_keithleys))
         sendEmail(emails, timestamp, f"({voltage} V) "+ name, info, version)
 #
 ####################################################################################################
@@ -63,15 +64,15 @@ def runTest(allGPIB, voltage, testTime, emails, name, info, version):
 def connectToKeithley(allGPIB):
     desiredKeithleyPorts = []
     allKeithleys = []
-    
+   
     rm = pyvisa.ResourceManager() # This will manage the connection
     allConnectedPorts = rm.list_resources()
-    
+   
     for port in allConnectedPorts:
         if port[0:4] == 'GPIB' and int(port[7:9]) in allGPIB:
             print("Found port: ", port)
             desiredKeithleyPorts.append(port)
-            
+           
     for port in desiredKeithleyPorts:
         print("Attempting to connect to port", port)
         keithley = rm.open_resource(port)  # Open connection to the Keithley
@@ -115,7 +116,12 @@ async def findStatus(keithley, keithley_number):
 #
 ####################################################################################################
 #
-async def keithleyTestThread(keithley, voltage, testTime, keithley_number):
+async def safe_query(keithley, command, lock):
+    async with lock:
+        return keithley.query(command)
+#
+####################################################################################################
+async def keithleyTestThread(keithley, voltage, testTime, keithley_number, keithley_lock):
     SELF_DATA = []
     #
     for v, t in zip(voltage, testTime):
@@ -143,10 +149,10 @@ async def keithleyTestThread(keithley, voltage, testTime, keithley_number):
                     await asyncio.sleep(1)
                     #    
                 else: # If buffer full
-                    SELF_DATA.append(keithley.query("TRAC:DATA?").strip() + ",") # Reads from the buffer
+                    SELF_DATA.append(safe_query(keithley, "TRAC:DATA?", keithley_lock).strip() + ",") # Reads from the buffer
                     keithley.write("TRAC:CLE")  # Clears Buffer
                     keithley.write("*CLS")      # Clears Status Byte
-                    # 
+                    #
                     TOTAL_POINTS -= BUFFER_SIZE # Subtract the amount of points gathered from the total
                     if TOTAL_POINTS <= 0:   # If no more points to gather return.
                         break
@@ -170,7 +176,7 @@ async def keithleyTestThread(keithley, voltage, testTime, keithley_number):
         await asyncio.sleep(0.25)
     #
     return SELF_DATA
-            
+           
 #
 ####################################################################################################
 #
@@ -183,9 +189,9 @@ async def get_gpib_address(keithley):
 #
 ####################################################################################################
 #
-async def graphThread(all_keithleys, voltage):
+async def graphThread(all_keithleys, voltage, keithley_locks):
     num_plots = len(all_keithleys)
-    
+   
     plot.ion()  # turn on interactive mode
 
     fig, axes = plot.subplots(num_plots, 1, figsize=(8, 2 * num_plots))
@@ -227,10 +233,10 @@ async def graphThread(all_keithleys, voltage):
             for i, keithley in enumerate(all_keithleys):
                 # Collect data from keithley
                 try:
-                    response = keithley.query("FETCH?").split(',')[0:2]
+                    response = (await safe_query(keithley, "FETCH?", keithley_locks[i])).split(',')[0:2]
                 except Exception as e:
                     continue
-                
+               
                 # Append data to dataset
                 time_reading = float(response[1][:-4])
                 if time_reading < last_time_reading[i]:
@@ -315,20 +321,20 @@ def merge_clean_data(cleaned_outputs):
 #
 ####################################################################################################
 #
-async def sourceAndRead(allKeithleys, voltage, testTime):
+async def sourceAndRead(allKeithleys, voltage, testTime, keithley_locks):
     master_data = []
     tasks = []
 
     for index, keithley in enumerate(allKeithleys): # Allocates spaces for all data slots required per Keithley
         master_data.append(0)
-        tasks.append(asyncio.create_task(keithleyTestThread(keithley, voltage, testTime, index+1)))
-        
-    graphtask = asyncio.create_task(graphThread(allKeithleys, voltage))
+        tasks.append(asyncio.create_task(keithleyTestThread(keithley, voltage, testTime, index+1, keithley_locks[index])))
+       
+    graphtask = asyncio.create_task(graphThread(allKeithleys, voltage, keithley_locks))
 
     # Awaits all tasks
     for index, task in enumerate(tasks):
         master_data[index] = await task
-        
+       
     graphtask.cancel()
 
     try:
@@ -341,7 +347,7 @@ async def sourceAndRead(allKeithleys, voltage, testTime):
         clean_data_list.append(clean_data(individual_keithley_dataset))
 
     merged_data = merge_clean_data(clean_data_list)
-    
+   
     return merged_data
 #
 ####################################################################################################
