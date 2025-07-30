@@ -39,7 +39,7 @@ def run_test(ALL_GPIB_ADDRESSES, VOLTAGE, TEST_TIME, EMAILS, TEST_NAME, TEST_INF
         KEITHLEY_LOCKS = [threading.Lock() for _ in ALL_KEITHLEYS]
         print("Setting limits.")
         setLimits(ALL_KEITHLEYS, VOLTAGE)
-        data = sourceAndRead(ALL_KEITHLEYS, VOLTAGE, TEST_TIME, GRAPH, KEITHLEY_LOCKS)
+        data = source_and_read(ALL_KEITHLEYS, VOLTAGE, TEST_TIME, GRAPH, KEITHLEY_LOCKS)
         test_success = True
     except pyvisa.VisaIOError as e:
         print(f"VisaIOError: {e}")
@@ -347,7 +347,7 @@ def merge_clean_data(cleaned_outputs):
 #
 ####################################################################################################
 #
-def sourceAndRead(ALL_KEITHLEYS, VOLTAGE, TEST_TIME, GRAPH, KEITHLEY_LOCKS):
+def source_and_read(ALL_KEITHLEYS, VOLTAGE, TEST_TIME, GRAPH, KEITHLEY_LOCKS):
     master_data = [None] * len(ALL_KEITHLEYS)
    
     threads = []
