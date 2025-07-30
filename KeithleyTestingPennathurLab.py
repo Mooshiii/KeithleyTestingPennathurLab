@@ -9,7 +9,7 @@ VERSION = "Main: 1.2.1"
 #
 # Put email(s) you want data sent to here seperated by commas:
 # Ex.          = "email@gmail.com, email2@gmail.com, email3@gmail.com"
-EMAIL_ADDRESSES = "tfrischknecht@ucsb.edu"
+EMAIL_ADDRESSES = "email@gmail.com"
 #
 # Put the title of your test here:
 # Voltage is automatically added to the front! "Test1" -> "(5V) Test1"
@@ -27,11 +27,11 @@ VOLTAGE = [0]
 #
 # Put the time you'd like the test to run here (in min):
 # Ex.    = [10, 10, 300]
-TEST_TIME = [1, 5, 10, 20, 30, 60, 120, 60*7]
+TEST_TIME = [0]
 #
 # Put the GPIB Addresses of the Keithleys you would like to test. (You can use up to 30!)
 # Ex.           = [22, 24, 26]
-GPIB_ADDRESS = [11]
+GPIB_ADDRESS = [0]
 #
 #
 #
