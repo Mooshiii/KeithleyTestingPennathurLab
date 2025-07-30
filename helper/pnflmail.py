@@ -1,8 +1,8 @@
 ####################################################################################################
 #
-# PNFLmail - 7/24/2025 - Tyler Frischknecht
+# PNFLmail - 7/29/2025 - Tyler Frischknecht
 # Pennathur Nanofluidics Lab Email
-VERSION = "   Mail: 1.2.0"
+MAIL_VERSION = "   Mail: 1.2.1"
 #
 ####################################################################################################
 # Import Libraries
@@ -20,23 +20,25 @@ load_dotenv()
 ####################################################################################################
 # Important Global Variables
 smtpPort = 587                  # Standard secure SMTP port
-smtpServer = "smtp.gmail.com"   # Google SMTP 
+smtpServer = "smtp.gmail.com"   # Google SMTP
 smtpUsername = os.getenv("SMTP_USERNAME")  # Email Username        
 smtpPassword = os.getenv("SMTP_PASSWORD") # pip install python-dotenv
 #
 ####################################################################################################
 # Main email function
-def sendEmail(userEmailsList, timestamp, testName = "Your Test", testAdditionalInfo = "The data is attached to the email!", version="UNK"):
-    version += VERSION
+def sendEmail(userEmailsList, timestamp, testName = "Your Test", testAdditionalInfo = "The data is attached to the email!", GRAPH = True, version="UNK"):
+    version += MAIL_VERSION
     allFiles = []
     if __name__ == "__main__":
         allFiles.append(os.path.join('..', 'data', f"data{timestamp}.csv"))
         allFiles.append(os.path.join('..', 'data', f"data{timestamp}.xlsx"))
-        allFiles.append(os.path.join('...', 'data', f"data{timestamp}.png"))
+        if GRAPH:
+            allFiles.append(os.path.join('...', 'data', f"data{timestamp}.png"))
     else:
         allFiles.append(os.path.join('helper', 'data', f"data{timestamp}.csv"))
         allFiles.append(os.path.join('helper', 'data', f"data{timestamp}.xlsx"))
-        allFiles.append(os.path.join('helper', 'data', f"data{timestamp}.png"))
+        if GRAPH:
+            allFiles.append(os.path.join('helper', 'data', f"data{timestamp}.png"))
 
     if type(userEmailsList) != list:
         userEmailsList = userEmailsList.split(", ") # Separating string into list of separate emails.
@@ -57,7 +59,7 @@ def sendEmail(userEmailsList, timestamp, testName = "Your Test", testAdditionalI
         f"VERSIONS:   {version}",
         f"If you encountered any issues, please send an email to tfrischknecht@ucsb.edu or tbrooksdf@gmail.com",
         f"Good luck and happy testing!"]) # Full message contents
-        
+       
     message.attach(MIMEText(messageBody, 'plain')) # Attach messageBody above as plain text.
 
     # ATTACHMENTS
