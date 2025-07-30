@@ -50,11 +50,11 @@ USE_GRAPH = True
 ####################################################################################################
 # Please don't touch this part unless you know what you're doing, its important!!
 print("MAKE SURE YOU HAVE YOUR .env FILE CONFIGURED PROPERLY!")
-from helper.pnfltest import runTest
+from helper.pnfltest import run_test
 if (len(VOLTAGE) != len(TEST_TIME)):
     print("Voltage list not same length as testTime list. Please ensure they both have the same number of items.")
     exit(1);
 #
-runTest(GPIB_ADDRESS, VOLTAGE, TEST_TIME, EMAIL_ADDRESSES, TEST_NAME, TEST_NOTES, USE_GRAPH, VERSION)
+run_test(GPIB_ADDRESS, VOLTAGE, TEST_TIME, EMAIL_ADDRESSES, TEST_NAME, TEST_NOTES, USE_GRAPH, VERSION)
 #
 ####################################################################################################
