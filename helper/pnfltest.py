@@ -29,9 +29,9 @@ else:
 #
 ####################################################################################################
 #
-def runTest(ALL_GPIB_ADDRESSES, VOLTAGE, TEST_TIME, EMAILS, TEST_NAME, TEST_INFO, GRAPH=True, version):
-    run_test(ALL_GPIB_ADDRESSES, VOLTAGE, TEST_TIME, EMAILS, TEST_NAME, TEST_INFO, GRAPH=True, version)
-def run_test(ALL_GPIB_ADDRESSES, VOLTAGE, TEST_TIME, EMAILS, TEST_NAME, TEST_INFO, GRAPH=True, version):
+def runTest(ALL_GPIB_ADDRESSES, VOLTAGE, TEST_TIME, EMAILS, TEST_NAME, TEST_INFO, GRAPH, version):
+    run_test(ALL_GPIB_ADDRESSES, VOLTAGE, TEST_TIME, EMAILS, TEST_NAME, TEST_INFO, GRAPH, version)
+def run_test(ALL_GPIB_ADDRESSES, VOLTAGE, TEST_TIME, EMAILS, TEST_NAME, TEST_INFO, GRAPH, version):
     version += TEST_VERSION
     test_success = False
     try:
