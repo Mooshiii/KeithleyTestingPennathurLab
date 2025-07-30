@@ -29,7 +29,7 @@ else:
 #
 ####################################################################################################
 #
-def runTest(ALL_GPIB_ADDRESSES, VOLTAGE, TEST_TIME, EMAILS, TEST_NAME, TEST_INFO, GRAPH, version):
+def runTest(ALL_GPIB_ADDRESSES, VOLTAGE, TEST_TIME, EMAILS, TEST_NAME, TEST_INFO, version, GRAPH=True):
     run_test(ALL_GPIB_ADDRESSES, VOLTAGE, TEST_TIME, EMAILS, TEST_NAME, TEST_INFO, GRAPH, version)
 def run_test(ALL_GPIB_ADDRESSES, VOLTAGE, TEST_TIME, EMAILS, TEST_NAME, TEST_INFO, GRAPH, version):
     version += TEST_VERSION
