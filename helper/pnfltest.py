@@ -2,7 +2,7 @@
 #
 # PNFLtest - 7/30/2025 - Tyler Frischknecht
 # Pennathur Nanofluidics Lab Keithley Test Commands
-TEST_VERSION = "   Test: 1.2.3"
+TEST_VERSION = "   Test: 1.2.4"
 #
 ####################################################################################################
 # Import Libraries
@@ -127,11 +127,11 @@ def find_status(keithley, KEITHLEY_NUMBER):
 ####################################################################################################
 #
 def safe_query(keithley, command, lock, event):
+    result = None
     lock.acquire()
     try:
-        if event.is_set():
-            return None
-        result = keithley.query(command)
+        if not event.is_set():
+            result = keithley.query(command)
     finally:
         lock.release()
     return result
